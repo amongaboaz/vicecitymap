@@ -44,7 +44,7 @@ export default async function AdminPurchasesPage({ searchParams }: PageProps<"/a
           {purchases.map((p) => (
             <tr key={p.id}>
               <Td className="text-xs text-muted">{formatDateTime(p.created_at)}</Td>
-              <Td className="font-mono text-[11px] text-muted">{p.user_id.slice(0, 8)}…</Td>
+              <Td className="font-mono text-[11px] text-muted">{p.user_id ? `${p.user_id.slice(0, 8)}…` : "deleted user"}</Td>
               <Td className="font-mono text-[11px] text-muted">
                 {p.provider}:{p.provider_reference ? `${p.provider_reference.slice(0, 18)}…` : "—"}
               </Td>

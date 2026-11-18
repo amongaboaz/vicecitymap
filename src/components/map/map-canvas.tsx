@@ -32,6 +32,8 @@ type Props = {
   onViewportChange(bbox: BBox, zoom: number): void;
   onSelect(id: string): void;
   onCursor?(coords: [number, number] | null): void;
+  /** Click anywhere on the map (not on a marker), in map units. Used by the admin coordinate picker. */
+  onMapClick?(coords: [number, number]): void;
   onReady?(): void;
   onError?(message: string): void;
 };
@@ -51,14 +53,14 @@ function worldView(map: MlMap) {
 }
 
 export const MapCanvas = forwardRef<MapCanvasHandle, Props>(function MapCanvas(
-  { markers, selected, onViewportChange, onSelect, onCursor, onReady, onError },
+  { markers, selected, onViewportChange, onSelect, onCursor, onMapClick, onReady, onError },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const readyRef = useRef(false);
-  const callbacks = useRef({ onViewportChange, onSelect, onCursor, onReady, onError });
-  callbacks.current = { onViewportChange, onSelect, onCursor, onReady, onError };
+  const callbacks = useRef({ onViewportChange, onSelect, onCursor, onMapClick, onReady, onError });
+  callbacks.current = { onViewportChange, onSelect, onCursor, onMapClick, onReady, onError };
   const latestMarkers = useRef(markers);
   latestMarkers.current = markers;
   const latestSelected = useRef(selected);
@@ -268,6 +270,11 @@ export const MapCanvas = forwardRef<MapCanvasHandle, Props>(function MapCanvas(
       map.on("render", updateClusters);
       map.on("mousemove", (e: MapMouseEvent) => callbacks.current.onCursor?.(lngLatToMap(e.lngLat.lng, e.lngLat.lat)));
       map.on("mouseout", () => callbacks.current.onCursor?.(null));
+      map.on("click", (e: MapMouseEvent) => {
+        if (!map || !callbacks.current.onMapClick) return;
+        if (map.getLayer("discovery-point") && map.queryRenderedFeatures(e.point, { layers: ["discovery-point"] }).length) return;
+        callbacks.current.onMapClick(lngLatToMap(e.lngLat.lng, e.lngLat.lat));
+      });
       map.on("error", (e) => console.warn("[map]", e.error?.message));
     };
     init().catch((err: unknown) => {

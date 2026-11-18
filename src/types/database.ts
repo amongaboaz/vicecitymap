@@ -168,7 +168,7 @@ export type Database = {
       purchases: {
         Row: {
           id: string;
-          user_id: string;
+          user_id: string | null;
           provider: string;
           provider_reference: string | null;
           provider_payment_id: string | null;

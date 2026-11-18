@@ -6,6 +6,7 @@ import { saveDiscovery, type ActionState } from "@/lib/admin/actions";
 import { slugify } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Alert, Field, Input, Select, Textarea } from "@/components/ui/primitives";
+import { CoordinatePicker } from "./coordinate-picker";
 
 export type DiscoveryFormValues = {
   id?: string;
@@ -28,6 +29,10 @@ export function DiscoveryForm({ initial, categories }: { initial: DiscoveryFormV
   const [title, setTitle] = useState(initial.title);
   const [slug, setSlug] = useState(initial.slug);
   const [slugTouched, setSlugTouched] = useState(Boolean(initial.id));
+  const [mapX, setMapX] = useState<string>(initial.mapX === "" ? "" : String(initial.mapX));
+  const [mapY, setMapY] = useState<string>(initial.mapY === "" ? "" : String(initial.mapY));
+  const numX = mapX === "" || Number.isNaN(Number(mapX)) ? null : Number(mapX);
+  const numY = mapY === "" || Number.isNaN(Number(mapY)) ? null : Number(mapY);
   const fe = state?.fieldErrors ?? {};
 
   return (
@@ -91,12 +96,20 @@ export function DiscoveryForm({ initial, categories }: { initial: DiscoveryFormV
         </Field>
       </div>
 
+      <CoordinatePicker
+        x={numX}
+        y={numY}
+        onPick={(x, y) => {
+          setMapX(String(x));
+          setMapY(String(y));
+        }}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Map X (0–1000)" htmlFor="mapX" error={fe.mapX} hint="Admins see live x/y under the cursor on /map.">
-          <Input id="mapX" name="mapX" type="number" step="0.1" min={0} max={1000} required defaultValue={initial.mapX} />
+        <Field label="Map X (0–1000)" htmlFor="mapX" error={fe.mapX}>
+          <Input id="mapX" name="mapX" type="number" step="0.1" min={0} max={1000} required value={mapX} onChange={(e) => setMapX(e.target.value)} />
         </Field>
         <Field label="Map Y (0–1000)" htmlFor="mapY" error={fe.mapY}>
-          <Input id="mapY" name="mapY" type="number" step="0.1" min={0} max={1000} required defaultValue={initial.mapY} />
+          <Input id="mapY" name="mapY" type="number" step="0.1" min={0} max={1000} required value={mapY} onChange={(e) => setMapY(e.target.value)} />
         </Field>
       </div>
 

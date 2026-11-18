@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, Bookmark, CheckCircle2, Crown, LogOut, MapPin, Receipt, Shield } from "lucide-react";
+import { Activity, Bookmark, CheckCircle2, Crown, LogOut, MapPin, Receipt, Settings, Shield } from "lucide-react";
 import { requireUser } from "@/lib/auth/viewer";
 import { signOut } from "@/lib/auth/actions";
 import { getDashboardData } from "@/lib/dashboard";
@@ -32,6 +32,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
               <Shield /> Admin
             </ButtonLink>
           ) : null}
+          <ButtonLink href="/account" variant="ghost" size="sm">
+            <Settings /> Settings
+          </ButtonLink>
           <ButtonLink href="/map" size="sm">
             <MapPin /> Open map
           </ButtonLink>

@@ -7,7 +7,7 @@ import type { NormalizedPaymentEvent, Product, ProviderId } from "./types";
 
 export type PurchaseRecord = {
   id: string;
-  user_id: string;
+  user_id: string | null;
   provider: string;
   provider_reference: string | null;
   product_code: string;
@@ -65,7 +65,7 @@ export function validateSuccessfulPayment(
 ): { ok: true } | { ok: false; reason: string } {
   if (!event.purchaseId || !UUID.test(event.purchaseId)) return { ok: false, reason: "missing or invalid purchase reference" };
   if (!purchase) return { ok: false, reason: "purchase not found" };
-  if (!event.userId || event.userId !== purchase.user_id) return { ok: false, reason: "user mismatch" };
+  if (!purchase.user_id || !event.userId || event.userId !== purchase.user_id) return { ok: false, reason: "user mismatch" };
   if (purchase.provider !== event.provider) return { ok: false, reason: "provider mismatch" };
   if (purchase.provider_reference && purchase.provider_reference !== event.providerReference) {
     return { ok: false, reason: "provider reference mismatch" };
@@ -101,7 +101,7 @@ export async function handlePaymentEvent(
       const outcome = await store.fulfill({
         ...base,
         purchaseId: purchase!.id,
-        userId: purchase!.user_id,
+        userId: purchase!.user_id!,
         providerReference: event.providerReference,
         providerPaymentId: event.providerPaymentId,
         productCode: product.code,
